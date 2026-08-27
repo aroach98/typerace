@@ -29,6 +29,18 @@ export function RoomView({ code, creating, me, setMe, onLeave }: Props) {
   const [myDone, setMyDone] = useState(false);
   const startedRace = useRef(0);
 
+  // Everyone's clock ends within ~a second of mine. If someone's final message
+  // never lands, stop waiting on them after a grace period.
+  const [graceOver, setGraceOver] = useState(false);
+  useEffect(() => {
+    if (!myDone) {
+      setGraceOver(false);
+      return;
+    }
+    const t = window.setTimeout(() => setGraceOver(true), 4000);
+    return () => window.clearTimeout(t);
+  }, [myDone]);
+
   useEffect(() => {
     if (!state) return;
     if (state.phase === 'lobby') {
@@ -188,7 +200,16 @@ export function RoomView({ code, creating, me, setMe, onLeave }: Props) {
         <div className="panel" style={{ marginBottom: 16 }}>
           <Track players={racers} progress={progress} raceId={state.raceId} meId={me.id} />
         </div>
-        <Results players={racers} progress={progress} raceId={state.raceId} meId={me.id} isHost={isHost} onAgain={hostAgain} onLeave={onLeave} />
+        <Results
+          players={racers}
+          progress={progress}
+          raceId={state.raceId}
+          meId={me.id}
+          isHost={isHost}
+          onAgain={hostAgain}
+          onLeave={onLeave}
+          forceDone={graceOver}
+        />
       </div>
     );
   }

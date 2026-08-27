@@ -59,6 +59,13 @@ export function hasRealtime(): boolean {
 
 const NOT_FOUND_GRACE_MS = 4000;
 
+/** A final (`done`) row for a race is never overwritten by a live tick that arrives late. */
+function mergeProgress(prev: Record<string, Progress>, p: Progress): Record<string, Progress> {
+  const cur = prev[p.id];
+  if (cur && cur.raceId === p.raceId && cur.done && !p.done) return prev;
+  return { ...prev, [p.id]: p };
+}
+
 export interface Room {
   status: RoomStatus;
   players: PresentPlayer[];
@@ -163,8 +170,7 @@ export function useRoom(code: string | null, me: Player, creating: boolean): Roo
         if (amHost(readPresence())) broadcastState();
       })
       .on('broadcast', { event: 'progress' }, ({ payload }) => {
-        const p = payload as Progress;
-        setProgress((prev) => ({ ...prev, [p.id]: p }));
+        setProgress((prev) => mergeProgress(prev, payload as Progress));
       })
       .subscribe(async (st) => {
         if (st === 'SUBSCRIBED') {
@@ -226,7 +232,7 @@ export function useRoom(code: string | null, me: Player, creating: boolean): Roo
   );
 
   const sendProgress = useCallback((p: Progress) => {
-    setProgress((prev) => ({ ...prev, [p.id]: p }));
+    setProgress((prev) => mergeProgress(prev, p));
     const chan = chanRef.current;
     if (chan) void chan.send({ type: 'broadcast', event: 'progress', payload: p });
   }, []);

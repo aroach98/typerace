@@ -4,9 +4,12 @@
 export const RACE_SECONDS = 30;
 export const COUNTDOWN_MS = 3000;
 
+/** Live WPM is meaningless in the first instant (one char in 10 ms = 1200 WPM); floor the window. */
+const MIN_WINDOW_MS = 2000;
+
 export function wpm(correctChars: number, elapsedMs: number): number {
-  if (elapsedMs <= 0) return 0;
-  const minutes = elapsedMs / 60000;
+  if (elapsedMs <= 0 || correctChars <= 0) return 0;
+  const minutes = Math.max(elapsedMs, MIN_WINDOW_MS) / 60000;
   return Math.round(correctChars / 5 / minutes);
 }
 

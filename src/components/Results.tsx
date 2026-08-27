@@ -14,6 +14,8 @@ interface Props {
   onAgain: () => void;
   onLeave: () => void;
   solo?: boolean;
+  /** Treat everyone as finished (grace period elapsed). */
+  forceDone?: boolean;
 }
 
 interface Row {
@@ -21,7 +23,7 @@ interface Row {
   p: Progress;
 }
 
-export function Results({ players, progress, raceId, meId, isHost, onAgain, onLeave, solo }: Props) {
+export function Results({ players, progress, raceId, meId, isHost, onAgain, onLeave, solo, forceDone }: Props) {
   const rows = useMemo<Row[]>(() => {
     const out: Row[] = [];
     for (const player of players) {
@@ -32,7 +34,7 @@ export function Results({ players, progress, raceId, meId, isHost, onAgain, onLe
     return out;
   }, [players, progress, raceId]);
 
-  const allDone = rows.length > 0 && rows.every((r) => r.p.done);
+  const allDone = rows.length > 0 && (Boolean(forceDone) || rows.every((r) => r.p.done));
   const myRank = rows.findIndex((r) => r.player.id === meId);
   const iWon = allDone && myRank === 0;
 
@@ -125,7 +127,7 @@ export function Results({ players, progress, raceId, meId, isHost, onAgain, onLe
               <td className="num">{r.p.acc}%</td>
               <td className="num">{r.p.chars}</td>
               <td>
-                {r.p.done ? (
+                {r.p.done || forceDone ? (
                   r.p.finished ? <span className="badge">whole passage 🏁</span> : r.p.chars >= TRACK_CHARS ? <span className="badge">crossed the line 🏁</span> : null
                 ) : (
                   <span className="badge live">still typing…</span>

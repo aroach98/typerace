@@ -147,9 +147,10 @@ input { font-family: inherit; }
     linear-gradient(45deg, #fff 25%, #111 25%, #111 75%, #fff 75%) 4.5px 4.5px / 9px 9px;
 }
 .lane .racer {
-  position: absolute; top: 50%; transform: translate(-50%, -50%); display: flex; align-items: center; gap: 6px;
-  white-space: nowrap; will-change: left;
+  position: absolute; top: 50%; transform: translateY(-50%); display: flex; align-items: center; gap: 6px;
+  white-space: nowrap; will-change: left; width: 160px;
 }
+.lane .meta b, .lane .meta span { max-width: 120px; overflow: hidden; text-overflow: ellipsis; }
 .lane .racer .emoji { font-size: 28px; filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.5)); transform: scaleX(-1); display: inline-block; }
 .lane .racer .emoji.fwd { transform: none; }
 .lane .meta { display: flex; flex-direction: column; line-height: 1; font-size: 11px; }

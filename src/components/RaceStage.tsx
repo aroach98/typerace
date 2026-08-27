@@ -28,8 +28,19 @@ export function RaceStage({ passage, goAt, me, players, progress, raceId, onProg
   const onDoneRef = useRef(onDone);
   onDoneRef.current = onDone;
 
+  // Once the final (done) progress is sent nothing else may go out — a late
+  // throttled tick would otherwise overwrite it with `done: false`.
+  const doneRef = useRef(false);
+  const lastSent = useRef(0);
+  const pending = useRef<number | null>(null);
+
   const handleDone = useCallback(
     (final: TypingStats) => {
+      doneRef.current = true;
+      if (pending.current) {
+        window.clearTimeout(pending.current);
+        pending.current = null;
+      }
       onProgressRef.current({
         id: me.id,
         raceId,
@@ -58,13 +69,25 @@ export function RaceStage({ passage, goAt, me, players, progress, raceId, onProg
     return () => window.removeEventListener('keydown', focus);
   }, []);
 
+  // Reset the guard for a new passage/race.
+  useEffect(() => {
+    doneRef.current = false;
+  }, [passage, raceId]);
+  useEffect(
+    () => () => {
+      if (pending.current) window.clearTimeout(pending.current);
+    },
+    [],
+  );
+
   // Throttled live progress to the room.
-  const lastSent = useRef(0);
-  const pending = useRef<number | null>(null);
   const { chars, wpm, acc, finished } = t.stats;
   useEffect(() => {
+    if (doneRef.current) return;
     if (!t.running && chars === 0) return;
     const send = () => {
+      pending.current = null;
+      if (doneRef.current) return;
       lastSent.current = performance.now();
       onProgressRef.current({ id: me.id, raceId, chars, wpm, acc, finished, done: false, elapsedMs: t.stats.elapsedMs });
     };

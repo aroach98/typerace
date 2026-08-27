@@ -36,7 +36,7 @@ export function Track({ players, progress, raceId, meId }: Props) {
             <motion.div
               className="racer"
               initial={false}
-              animate={{ left: `calc(${(pct * 92 + 4).toFixed(2)}%)` }}
+              animate={{ left: `calc(${pct.toFixed(3)} * (100% - 170px) + 6px)` }}
               transition={{ type: 'spring', stiffness: 90, damping: 18, mass: 0.6 }}
             >
               <motion.span
