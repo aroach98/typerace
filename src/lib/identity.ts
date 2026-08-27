@@ -25,18 +25,38 @@ export function randomName(): string {
   return `${ADJ[Math.floor(Math.random() * ADJ.length)]} ${NOUN[Math.floor(Math.random() * NOUN.length)]}`;
 }
 
+const TAB_KEY = 'typerace:tab';
+
+/**
+ * Name/car/colour persist per browser (localStorage); the id is per TAB
+ * (sessionStorage) so two tabs in one browser are two racers, while a reload
+ * keeps you as the same racer.
+ */
+function tabId(): string {
+  try {
+    const existing = sessionStorage.getItem(TAB_KEY);
+    if (existing) return existing;
+    const id = randomId();
+    sessionStorage.setItem(TAB_KEY, id);
+    return id;
+  } catch {
+    return randomId();
+  }
+}
+
 export function loadMe(): Player {
+  const id = tabId();
   try {
     const raw = localStorage.getItem(KEY);
     if (raw) {
       const p = JSON.parse(raw) as Partial<Player>;
-      if (p.id && p.name && p.car && p.color) return p as Player;
+      if (p.name && p.car && p.color) return { id, name: p.name, car: p.car, color: p.color };
     }
   } catch {
     /* ignore */
   }
   const me: Player = {
-    id: randomId(),
+    id,
     name: randomName(),
     car: CARS[Math.floor(Math.random() * CARS.length)],
     color: COLORS[Math.floor(Math.random() * COLORS.length)],
