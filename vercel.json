@@ -1,4 +1,11 @@
 {
-  "git": { "deploymentEnabled": false },
-  "rewrites": [{ "source": "/((?!assets/).*)", "destination": "/index.html" }]
+  "git": {
+    "deploymentEnabled": false
+  },
+  "rewrites": [
+    {
+      "source": "/((?!assets/).*)",
+      "destination": "/index.html"
+    }
+  ]
 }
