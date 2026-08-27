@@ -20,7 +20,7 @@ interface Props {
 
 export function RoomView({ code, creating, me, setMe, onLeave }: Props) {
   const room = useRoom(code, me, creating);
-  const { state, players, progress, isHost, setState, sendProgress, status } = room;
+  const { state, players, racers, progress, isHost, setState, sendProgress, status, link } = room;
   const passage = useMemo(() => (state ? passageFromSeed(state.seed) : ''), [state?.seed]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Local race clock. Each client starts its own 3-second countdown the moment
@@ -84,7 +84,10 @@ export function RoomView({ code, creating, me, setMe, onLeave }: Props) {
   }, [isHost, state, setState]);
 
   const host = players[0];
-  const racers: Player[] = players;
+  const linkBadge =
+    link === 'live' ? null : (
+      <div className="linkbadge">{link === 'connecting' ? 'Connecting…' : 'Reconnecting…'}</div>
+    );
 
   if (status === 'not-found') {
     return (
@@ -128,6 +131,7 @@ export function RoomView({ code, creating, me, setMe, onLeave }: Props) {
   if (state.phase === 'lobby') {
     return (
       <div className="container">
+        {linkBadge}
         <div className="grid two">
           <div className="panel">
             <h2>{isHost ? 'Your lobby' : `${host?.name ?? 'Someone'}'s lobby`}</h2>
@@ -150,6 +154,11 @@ export function RoomView({ code, creating, me, setMe, onLeave }: Props) {
             <h2>
               Racers <span className="badge">{players.length}</span>
             </h2>
+            {players.length === 1 && !creating && (
+              <p className="muted small" style={{ marginTop: 0 }}>
+                Nobody else is here yet. If a friend already started a race with this code, hang on a few seconds — you'll sync up.
+              </p>
+            )}
             <div className="players">
               {players.map((p, i) => (
                 <motion.div className="player" key={p.id} initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }}>
@@ -181,6 +190,7 @@ export function RoomView({ code, creating, me, setMe, onLeave }: Props) {
   if (inThisRace && !myDone) {
     return (
       <div className="container">
+        {linkBadge}
         <RaceStage
           passage={passage}
           goAt={goAt}
@@ -197,6 +207,7 @@ export function RoomView({ code, creating, me, setMe, onLeave }: Props) {
   if (inThisRace || state.phase === 'results') {
     return (
       <div className="container">
+        {linkBadge}
         <div className="panel" style={{ marginBottom: 16 }}>
           <Track players={racers} progress={progress} raceId={state.raceId} meId={me.id} />
         </div>
