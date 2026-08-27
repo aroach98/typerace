@@ -6,13 +6,9 @@ import { COUNTDOWN_MS } from '../lib/wpm';
 export function Countdown({ goAt }: { goAt: number }) {
   const [now, setNow] = useState(() => performance.now());
   useEffect(() => {
-    let raf = 0;
-    const tick = () => {
-      setNow(performance.now());
-      raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
+    // Interval, not rAF — rAF pauses in background tabs (see useTyping).
+    const id = window.setInterval(() => setNow(performance.now()), 50);
+    return () => window.clearInterval(id);
   }, []);
 
   const remaining = goAt - now;

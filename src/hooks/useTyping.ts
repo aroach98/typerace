@@ -79,18 +79,17 @@ export function useTyping({ passage, startAt, durationMs = RACE_SECONDS * 1000, 
     reset();
   }, [passage, reset]);
 
-  // Clock. Ticks ~30 fps while a race is live for the timer and live WPM.
+  // Clock. setInterval rather than requestAnimationFrame on purpose: rAF is
+  // paused entirely in a background tab, which would freeze the race for
+  // anyone who tabs away; an interval is merely throttled (≥1 Hz) there, so
+  // the 30 seconds still elapse and the final score still goes out.
   const started = startAt !== null && now >= startAt;
   const running = started && !finished && finishedAt === null && now - startAt < durationMs;
   useEffect(() => {
     if (startAt === null) return;
-    let raf = 0;
-    const tick = () => {
-      setNow(performance.now());
-      raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
+    setNow(performance.now());
+    const id = window.setInterval(() => setNow(performance.now()), 50);
+    return () => window.clearInterval(id);
   }, [startAt]);
 
   const elapsedMs = !started ? 0 : Math.min(durationMs, (finishedAt ?? now) - startAt);
