@@ -6,7 +6,6 @@ name: Vercel Deploy
 # whose GitHub is linked to a DIFFERENT (CACC) Vercel account -- are not seat-blocked.
 
 on:
-  pull_request:
   push:
     branches: [main]
   workflow_dispatch:
