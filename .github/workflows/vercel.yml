@@ -22,7 +22,7 @@ jobs:
       contents: read
       pull-requests: write
     env:
-      VERCEL_ORG_ID: team_TwtHoN667y5r0uFskmaajSUK
+      VERCEL_ORG_ID: team_L6eDMatG2i2PEIsLK6ogaUrm
       VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
       VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
       REAL_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
@@ -54,7 +54,7 @@ jobs:
       # as --meta gitSha.
       #
       # The email MUST be one Vercel can resolve to a member of THIS team
-      # (andrew-projects3). Use the account owner's own Vercel email -- NOT aroach98's
+      # (momentum-systems). Use the account owner's own Vercel email -- NOT aroach98's
       # github.com noreply address, which Vercel maps to no member here: aroach98's
       # GitHub is linked to the CACC Vercel account, not this one, so a github noreply
       # would block production with TEAM_ACCESS_REQUIRED. Previews are not seat-checked,
@@ -62,7 +62,7 @@ jobs:
       - name: Re-author HEAD for Vercel's git-author check
         run: |
           git -c user.name='aroach98' \
-              -c user.email='dakeragamer13@gmail.com' \
+              -c user.email='andrew@momentumsystems.dev' \
               commit --amend --no-edit --reset-author --allow-empty
 
       - name: Install Vercel CLI
